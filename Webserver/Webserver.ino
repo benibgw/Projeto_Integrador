@@ -20,16 +20,9 @@ void WifiConnection() {
   Serial.println("Connected.");
   Serial.print("IP Address: ");
   Serial.println(WiFi.localIP());
-}
-
-void handleRoot() {
-  server.send(200, "text/html",
-              "<!DOCTYPE html>"
-              "<html>"
-              "<head><title>IoT</title></head>"
-              "<body style='font-family: Arial; text-align: center; margin-top: 50px;'>"
-              "<h1>IoT - Projeto Integrador</h1>"
-              "</body></html>");
+  server.on("/", handleRoot);
+  server.begin();
+  Serial.print("Server started.");
 }
 
 bool CheckWifiConnection() {
@@ -42,15 +35,20 @@ bool CheckWifiConnection() {
   }
 }
 
+void handleRoot() {
+  server.send(200, "text/html",
+              "<!DOCTYPE html>"
+              "<html>"
+              "<head><title>IoT</title></head>"
+              "<body style='font-family: Arial; text-align: center; margin-top: 50px;'>"
+              "<h1>IoT - Projeto Integrador</h1>"
+              "</body></html>");
+}
+
 void setup() {
   Serial.begin(115200);
   pinMode(2, OUTPUT);
   WifiConnection();
-
-  server.on("/", handleRoot);
-
-  server.begin();
-  Serial.println("Servidor iniciado.");
 }
 
 void loop() {
