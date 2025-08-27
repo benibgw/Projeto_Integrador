@@ -28,7 +28,7 @@ void handleRoot() {
               "<html>"
               "<head><title>IoT</title></head>"
               "<body style='font-family: Arial; text-align: center; margin-top: 50px;'>"
-              "<h1>IoT - Projeto Integradoserver</h1>"
+              "<h1>IoT - Projeto Integrador</h1>"
               "</body></html>");
 }
 
