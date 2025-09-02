@@ -2,16 +2,15 @@
 #include <WebServer.h>
 #include <vector>
 
-const char* ssid = "Your_SSID";
-const char* password = "Your_Password";
-std::vector<char> CommandList;
+const char* ssid = "Robo_Desenhista";
+std::vector<int> CommandList;
 
 WebServer server(80);
 
 void WifiConnection() {
   Serial.print("Connecting to ");
   Serial.print(ssid);
-  WiFi.begin(ssid, password);
+  WiFi.begin(ssid);
   while (WiFi.status() != WL_CONNECTED) {
     Serial.print(".");
     digitalWrite(2, HIGH);
@@ -75,31 +74,33 @@ void handleRoot() {
 }
 
 void handleForward() {
-  CommandList.pushback('F');
+  CommandList.push_back(0);
   Serial.println("Comando: Frente");
   server.send(200, "text/html", getPage());
 }
 
 void handleLeft() {
-  CommandList.pushback('L');
+  CommandList.push_back(1);
   Serial.println("Comando: Esquerda");
   server.send(200, "text/html", getPage());
 }
 
 void handleRight() {
-  CommandList.pushback('R');
+  CommandList.push_back(2);
   Serial.println("Comando: Direita");
   server.send(200, "text/html", getPage());
 }
 
 void handleStart() {
   Serial.println("Comando: Start");
-  Serial.println(CommandList);
+  for(int i : CommandList){
+    Serial.print(CommandList[i]);
+  }
   server.send(200, "text/html", getPage());
 }
 
 void handleUndo() {
-  CommandList.popback();
+  CommandList.pop_back();
   Serial.println("Comando: Undo (remover último)");
   server.send(200, "text/html", getPage());
 }
@@ -111,7 +112,7 @@ void handleClear() {
 }
 
 void setup() {
-  Serial.begin(115200);
+  Serial.begin(9600);
   pinMode(2, OUTPUT);
   WifiConnection();
 }
