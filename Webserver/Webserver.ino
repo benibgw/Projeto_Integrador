@@ -1,8 +1,10 @@
 #include <WiFi.h>
 #include <WebServer.h>
+#include <vector>
 
 const char* ssid = "Your_SSID";
 const char* password = "Your_Password";
+std::vector<char> CommandList;
 
 WebServer server(80);
 
@@ -73,31 +75,37 @@ void handleRoot() {
 }
 
 void handleForward() {
+  CommandList.pushback('F');
   Serial.println("Comando: Frente");
   server.send(200, "text/html", getPage());
 }
 
 void handleLeft() {
+  CommandList.pushback('L');
   Serial.println("Comando: Esquerda");
   server.send(200, "text/html", getPage());
 }
 
 void handleRight() {
+  CommandList.pushback('R');
   Serial.println("Comando: Direita");
   server.send(200, "text/html", getPage());
 }
 
 void handleStart() {
   Serial.println("Comando: Start");
+  Serial.println(CommandList);
   server.send(200, "text/html", getPage());
 }
 
 void handleUndo() {
+  CommandList.popback();
   Serial.println("Comando: Undo (remover último)");
   server.send(200, "text/html", getPage());
 }
 
 void handleClear() {
+  CommandList.clear();
   Serial.println("Comando: Clear (limpar fila)");
   server.send(200, "text/html", getPage());
 }
