@@ -44,6 +44,7 @@ bool CheckWifiConnection() {
     digitalWrite(2, HIGH);
     return true;
   } else {
+    WifiConnection();
     digitalWrite(2, LOW);
     return false;
   }
