@@ -29,7 +29,7 @@ void WifiConnection() {
     digitalWrite(LED_BUILTIN, LOW);
     delay(200);
   }
-  Serial.println("\nConnected.");
+  Serial.println("\nConnected");
   Serial.print("IP Address: ");
   Serial.println(WiFi.localIP());
 
@@ -112,7 +112,7 @@ void handleStart() {
     movementInProgress = false;
     waitingSensor = false;
   } else {
-    Serial.println("Lista de comandos vazia.");
+    Serial.println("Lista de comandos vazia");
   }
   server.send(200, "text/html", getPage());
 }
@@ -131,7 +131,7 @@ void handleUndo() {
     CommandList.pop_back();
     Serial.println("Comando: Undo");
   } else {
-    Serial.println("Lista vazia, nada para remover.");
+    Serial.println("Lista vazia, nada para remover");
   }
   server.send(200, "text/html", getPage());
 }
@@ -159,20 +159,21 @@ void loop() {
     if (currentCommandIndex >= CommandList.size()) {
       inMovement = false;
       currentCommandIndex = 0;
-      Serial.println("Todos os comandos executados.");
+      CommandList.clear();
+      Serial.println("Todos os comandos executados");
       return;
     }
 
     if (digitalRead(SENSOR) == HIGH && !waitingSensor) {
       digitalWrite(LEFT_MOTOR, LOW);
       digitalWrite(RIGH_MOTOR, LOW);
-      Serial.println("Esperando liberação do sensor...");
+      Serial.println("Esperando liberação do sensor");
       waitingSensor = true;
       return;
     }
 
     if (digitalRead(SENSOR) == LOW && waitingSensor) {
-      Serial.println("Sensor liberado. Continuando...");
+      Serial.println("Sensor liberado, continuando");
       waitingSensor = false;
       movementInProgress = false;
     }
