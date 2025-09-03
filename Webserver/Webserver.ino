@@ -184,7 +184,7 @@ void loop() {
       movementInProgress = true;
 
       switch (cmd) {
-        case 0
+        case 0:
           digitalWrite(LEFT_MOTOR, HIGH);
           digitalWrite(RIGH_MOTOR, HIGH);
           Serial.println("Movendo: Frente");
@@ -193,7 +193,7 @@ void loop() {
           digitalWrite(RIGH_MOTOR, HIGH);
           Serial.println("Movendo: Esquerda");
           break;
-        case 2
+        case 2:
           digitalWrite(LEFT_MOTOR, HIGH);
           Serial.println("Movendo: Direita");
           break;
