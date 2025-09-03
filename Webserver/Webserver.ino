@@ -2,6 +2,11 @@
 #include <WebServer.h>
 #include <vector>
 
+#define LED_BUILTIN 2
+#define SENSOR 18
+#define LEFT_MOTOR 4
+#define RIGH_MOTOR 5
+
 const char* ssid = "Robo_Desenhista";
 std::vector<int> CommandList;
 
@@ -22,7 +27,6 @@ void WifiConnection() {
   Serial.print("IP Address: ");
   Serial.println(WiFi.localIP());
 
-  // Rotas
   server.on("/", handleRoot);
   server.on("/forward", handleForward);
   server.on("/left", handleLeft);
@@ -93,27 +97,64 @@ void handleRight() {
 
 void handleStart() {
   Serial.println("Comando: Start");
-  for(int i : CommandList){
-    Serial.print(CommandList[i]);
-  }
+  Movement();
   server.send(200, "text/html", getPage());
 }
 
 void handleUndo() {
-  CommandList.pop_back();
-  Serial.println("Comando: Undo (remover último)");
+  if(!CommandList.empty()){
+    CommandList.pop_back();
+    Serial.println("Comando: Undo");
+  }
+  else{
+    Serial.println("Lista vazia, nada para remover.)");
+  }
   server.send(200, "text/html", getPage());
 }
 
 void handleClear() {
   CommandList.clear();
-  Serial.println("Comando: Clear (limpar fila)");
+  Serial.println("Comando: Clear");
   server.send(200, "text/html", getPage());
+}
+
+void Movement(){
+  for(int i : CommandList){
+    while(digitalRead(SENSOR)==HIGH){
+      digitalWrite(LEFT_MOTOR, LOW);
+      digitalWrite(RIGH_MOTOR, LOW);
+    }
+    switch(CommandList[i]){
+      case 0:
+        digitalWrite(LEFT_MOTOR, HIGH);
+        digitalWrite(RIGH_MOTOR, HIGH);
+        delay(1000);
+        digitalWrite(LEFT_MOTOR, LOW;
+        digitalWrite(RIGH_MOTOR, LOW);
+        Serial.print("F");
+        break;
+      case 1:
+        digitalWrite(RIGH_MOTOR, HIGH);
+        delay(1000);
+        digitalWrite(RIGH_MOTOR, LOW);
+        Serial.print("L");
+        break;
+      case 2:
+        digitalWrite(LEFT_MOTOR, HIGH);
+        delay(1000);
+        digitalWrite(LEFT_MOTOR, LOW);
+        Serial.print("R");
+        break;
+    }
+  }
 }
 
 void setup() {
   Serial.begin(9600);
-  pinMode(2, OUTPUT);
+  pinMode(LED_BUILTIN, OUTPUT);
+  pinMode(SENSOR, INPUT);
+  pinMode(LEFT_MOTOR, OUTPUT);
+  pinMode(RIGH_MOTOR, OUTPUT);
   WifiConnection();
 }
 
