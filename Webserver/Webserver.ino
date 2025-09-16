@@ -1,16 +1,19 @@
 #include <WiFi.h>
 #include <WebServer.h>
+#include <Ultrasonic.h>
 #include <vector>
 
 #define LED_BUILTIN 2
-#define SENSOR 18
-#define LEFT_MOTOR 4
-#define RIGH_MOTOR 5
+#define SENSOR_ECHO 12
+#define SENSOR_TRIG 13
+#define LEFT_MOTOR 27
+#define RIGH_MOTOR 26
 
 const char* ssid = "Robo_Desenhista";
 std::vector<int> CommandList;
 
 WebServer server(80);
+Ultrasonic ultrasonic(SENSOR_TRIG, SENSOR_ECHO);
 
 bool inMovement = false;
 int currentCommandIndex = 0;
@@ -63,19 +66,80 @@ String getPage() {
 <html>
 <head>
 <meta charset='UTF-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0'>
 <title>Controle do Robô</title>
+<style>
+  body {
+    font-family: 'Arial', sans-serif;
+    text-align: center;
+    background-color: #f0f0f0;
+    margin: 0;
+    padding: 20px;
+    box-sizing: border-box;
+  }
+
+  h2 {
+    color: #333;
+    font-size: 1.8em;
+    margin-bottom: 20px;
+  }
+
+  .button-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+  }
+
+  button {
+    width: 80%; /* Ajusta a largura dos botões para 80% da tela */
+    max-width: 300px; /* Limita a largura máxima para não ficarem muito grandes em telas largas */
+    padding: 15px 20px;
+    font-size: 1.2em;
+    color: white;
+    background-color: #007BFF;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+
+  button:hover {
+    background-color: #0056b3;
+  }
+
+  .inline-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 10px; /* Espaço entre os botões */
+  }
+
+  .inline-buttons button {
+    width: 48%; /* Cada botão ocupa metade da largura, com um pequeno espaço */
+    max-width: 145px;
+  }
+</style>
 </head>
-<body style='text-align:center; font-family: Arial;'>
+<body>
+
 <h2>Controle do Robô</h2>
 
-<button onclick="location.href='/forward'">Frente</button><br><br>
-<button onclick="location.href='/left'">Esquerda</button>
-<button onclick="location.href='/right'">Direita</button><br><br>
+<div class='button-container'>
+  <button onclick="location.href='/forward'">Frente</button>
+  
+  <div class='inline-buttons'>
+    <button onclick="location.href='/left'">Esquerda</button>
+    <button onclick="location.href='/right'">Direita</button>
+  </div>
+  
+  <button onclick="location.href='/start'">Start</button>
+  <button onclick="location.href='/cancel'">Cancel</button>
 
-<button onclick="location.href='/start'">Start</button><br><br>
-<button onclick="location.href='/cancel'">Cancel</button><br><br>
-<button onclick="location.href='/undo'">Desfazer</button>
-<button onclick="location.href='/clear'">Limpar</button>
+  <div class='inline-buttons'>
+    <button onclick="location.href='/undo'">Desfazer</button>
+    <button onclick="location.href='/clear'">Limpar</button>
+  </div>
+</div>
 
 </body>
 </html>
@@ -145,7 +209,6 @@ void handleClear() {
 void setup() {
   Serial.begin(9600);
   pinMode(LED_BUILTIN, OUTPUT);
-  pinMode(SENSOR, INPUT);
   pinMode(LEFT_MOTOR, OUTPUT);
   pinMode(RIGH_MOTOR, OUTPUT);
   WifiConnection();
@@ -164,7 +227,7 @@ void loop() {
       return;
     }
 
-    if (digitalRead(SENSOR) == HIGH && !waitingSensor) {
+    if (ultrasonic.read() <= 30 && !waitingSensor) {
       digitalWrite(LEFT_MOTOR, LOW);
       digitalWrite(RIGH_MOTOR, LOW);
       Serial.println("Esperando liberação do sensor");
@@ -172,7 +235,7 @@ void loop() {
       return;
     }
 
-    if (digitalRead(SENSOR) == LOW && waitingSensor) {
+    if (ultrasonic.read() > 30 && waitingSensor) {
       Serial.println("Sensor liberado, continuando");
       waitingSensor = false;
       movementInProgress = false;
