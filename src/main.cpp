@@ -250,22 +250,25 @@ void loop() {
 
       switch (cmd) {
         case 0:
+          delay(200);
           analogWrite(LEFT_MOTOR_PWM, 255);
           analogWrite(RIGHT_MOTOR_PWM, 255);
           Serial.println("Movendo: Frente");
           break;
         case 1:
+          delay(200);
           analogWrite(RIGHT_MOTOR_PWM, 255);
           Serial.println("Movendo: Esquerda");
           break;
         case 2:
+          delay(200);
           analogWrite(LEFT_MOTOR_PWM, 255);
           Serial.println("Movendo: Direita");
           break;
       }
     }
 
-    if (movementInProgress && millis() - movementStartTime >= 1000) {
+    if (movementInProgress && millis() - movementStartTime >= 2000) {
       analogWrite(LEFT_MOTOR_PWM, 0);
       analogWrite(RIGHT_MOTOR_PWM, 0);
       movementInProgress = false;
