@@ -7,8 +7,8 @@
 #define LED_BUILTIN 2
 #define SENSOR_ECHO 12
 #define SENSOR_TRIG 13
-#define LEFT_MOTOR 27
-#define RIGH_MOTOR 26
+#define LEFT_MOTOR_PWM 14
+#define RIGHT_MOTOR_PWM 18
 
 const char* ssid = "Robo_Desenhista";
 std::vector<int> CommandList;
@@ -147,8 +147,9 @@ void handleCancel() {
   Serial.println("Comando: Cancel");
   inMovement = false;
   movementInProgress = false;
-  digitalWrite(LEFT_MOTOR, LOW);
-  digitalWrite(RIGH_MOTOR, LOW);
+  CommandList.clear();
+  analogWrite(LEFT_MOTOR_PWM, 0);
+  analogWrite(RIGHT_MOTOR_PWM, 0);
   server.send(200, "text/html", getPage());
 }
 
@@ -210,8 +211,8 @@ bool CheckWifiConnection() {
 void setup() {
   Serial.begin(9600);
   pinMode(LED_BUILTIN, OUTPUT);
-  pinMode(LEFT_MOTOR, OUTPUT);
-  pinMode(RIGH_MOTOR, OUTPUT);
+  pinMode(LEFT_MOTOR_PWM, OUTPUT);
+  pinMode(RIGHT_MOTOR_PWM, OUTPUT);
   WifiConnection();
 }
 
@@ -229,8 +230,8 @@ void loop() {
     }
 
     if (ultrasonic.read() <= 30 && !waitingSensor) {
-      digitalWrite(LEFT_MOTOR, LOW);
-      digitalWrite(RIGH_MOTOR, LOW);
+      analogWrite(LEFT_MOTOR_PWM, 0);
+      analogWrite(RIGHT_MOTOR_PWM, 0);
       Serial.println("Esperando liberação do sensor");
       waitingSensor = true;
       return;
@@ -249,24 +250,24 @@ void loop() {
 
       switch (cmd) {
         case 0:
-          digitalWrite(LEFT_MOTOR, HIGH);
-          digitalWrite(RIGH_MOTOR, HIGH);
+          analogWrite(LEFT_MOTOR_PWM, 255);
+          analogWrite(RIGHT_MOTOR_PWM, 255);
           Serial.println("Movendo: Frente");
           break;
         case 1:
-          digitalWrite(RIGH_MOTOR, HIGH);
+          analogWrite(RIGHT_MOTOR_PWM, 255);
           Serial.println("Movendo: Esquerda");
           break;
         case 2:
-          digitalWrite(LEFT_MOTOR, HIGH);
+          analogWrite(LEFT_MOTOR_PWM, 255);
           Serial.println("Movendo: Direita");
           break;
       }
     }
 
     if (movementInProgress && millis() - movementStartTime >= 1000) {
-      digitalWrite(LEFT_MOTOR, LOW);
-      digitalWrite(RIGH_MOTOR, LOW);
+      analogWrite(LEFT_MOTOR_PWM, 0);
+      analogWrite(RIGHT_MOTOR_PWM, 0);
       movementInProgress = false;
       currentCommandIndex++;
     }
