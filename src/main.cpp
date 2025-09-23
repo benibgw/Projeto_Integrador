@@ -22,45 +22,6 @@ unsigned long movementStartTime = 0;
 bool movementInProgress = false;
 bool waitingSensor = false;
 
-void WifiConnection() {
-  Serial.print("Connecting to ");
-  Serial.print(ssid);
-  WiFi.begin(ssid);
-  while (WiFi.status() != WL_CONNECTED) {
-    Serial.print(".");
-    digitalWrite(LED_BUILTIN, HIGH);
-    delay(200);
-    digitalWrite(LED_BUILTIN, LOW);
-    delay(200);
-  }
-  Serial.println("\nConnected");
-  Serial.print("IP Address: ");
-  Serial.println(WiFi.localIP());
-
-  server.on("/", handleRoot);
-  server.on("/forward", handleForward);
-  server.on("/left", handleLeft);
-  server.on("/right", handleRight);
-  server.on("/cancel", handleCancel);
-  server.on("/start", handleStart);
-  server.on("/undo", handleUndo);
-  server.on("/clear", handleClear);
-
-  server.begin();
-  Serial.println("Server started.");
-}
-
-bool CheckWifiConnection() {
-  if (WiFi.status() == WL_CONNECTED) {
-    digitalWrite(LED_BUILTIN, HIGH);
-    return true;
-  } else {
-    WifiConnection();
-    digitalWrite(LED_BUILTIN, LOW);
-    return false;
-  }
-}
-
 String getPage() {
   return R"rawliteral(
 <!DOCTYPE html>
@@ -205,6 +166,45 @@ void handleClear() {
   CommandList.clear();
   Serial.println("Comando: Clear");
   server.send(200, "text/html", getPage());
+}
+
+void WifiConnection() {
+  Serial.print("Connecting to ");
+  Serial.print(ssid);
+  WiFi.begin(ssid);
+  while (WiFi.status() != WL_CONNECTED) {
+    Serial.print(".");
+    digitalWrite(LED_BUILTIN, HIGH);
+    delay(200);
+    digitalWrite(LED_BUILTIN, LOW);
+    delay(200);
+  }
+  Serial.println("\nConnected");
+  Serial.print("IP Address: ");
+  Serial.println(WiFi.localIP());
+
+  server.on("/", handleRoot);
+  server.on("/forward", handleForward);
+  server.on("/left", handleLeft);
+  server.on("/right", handleRight);
+  server.on("/cancel", handleCancel);
+  server.on("/start", handleStart);
+  server.on("/undo", handleUndo);
+  server.on("/clear", handleClear);
+
+  server.begin();
+  Serial.println("Server started.");
+}
+
+bool CheckWifiConnection() {
+  if (WiFi.status() == WL_CONNECTED) {
+    digitalWrite(LED_BUILTIN, HIGH);
+    return true;
+  } else {
+    WifiConnection();
+    digitalWrite(LED_BUILTIN, LOW);
+    return false;
+  }
 }
 
 void setup() {
