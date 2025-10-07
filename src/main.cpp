@@ -3,6 +3,7 @@
 #include <WebServer.h>
 #include <Ultrasonic.h>
 #include <vector>
+#include <ESPmDNS.h>
 
 #define LED_BUILTIN 2
 #define SENSOR_ECHO 12
@@ -169,20 +170,15 @@ void handleClear() {
   server.send(200, "text/html", getPage());
 }
 
-void WifiConnection() {
-  Serial.print("Connecting to ");
+void ApInit() {
+  Serial.print("Init AP. SSID: ");
   Serial.print(ssid);
-  WiFi.begin(ssid);
-  while (WiFi.status() != WL_CONNECTED) {
-    Serial.print(".");
-    digitalWrite(LED_BUILTIN, HIGH);
-    delay(200);
-    digitalWrite(LED_BUILTIN, LOW);
-    delay(200);
+  WiFi.softAP(ssid);
+  if (MDNS.begin("Robo_Desenhista")) {
+    Serial.println("mDNS : http://Robo_Desenhista.local/");
+  } else {
+    Serial.println("Erro ao iniciar mDNS");
   }
-  Serial.println("\nConnected");
-  Serial.print("IP Address: ");
-  Serial.println(WiFi.localIP());
 
   server.on("/", handleRoot);
   server.on("/forward", handleForward);
@@ -197,14 +193,11 @@ void WifiConnection() {
   Serial.println("Server started.");
 }
 
-bool CheckWifiConnection() {
-  if (WiFi.status() == WL_CONNECTED) {
+void CheckApState() {
+  if (WiFi.softAPgetStationNum() >= 0) {
     digitalWrite(LED_BUILTIN, HIGH);
-    return true;
   } else {
-    WifiConnection();
     digitalWrite(LED_BUILTIN, LOW);
-    return false;
   }
 }
 
@@ -213,11 +206,11 @@ void setup() {
   pinMode(LED_BUILTIN, OUTPUT);
   pinMode(LEFT_MOTOR_PWM, OUTPUT);
   pinMode(RIGHT_MOTOR_PWM, OUTPUT);
-  WifiConnection();
+  ApInit();
 }
 
 void loop() {
-  CheckWifiConnection();
+  CheckApState();
   server.handleClient();
 
   if (inMovement) {
