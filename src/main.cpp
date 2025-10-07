@@ -217,6 +217,8 @@ void loop() {
     if (currentCommandIndex >= CommandList.size()) {
       inMovement = false;
       currentCommandIndex = 0;
+      analogWrite(LEFT_MOTOR_PWM, 0);
+      analogWrite(RIGHT_MOTOR_PWM, 0);
       CommandList.clear();
       Serial.println("Todos os comandos executados");
       return;
