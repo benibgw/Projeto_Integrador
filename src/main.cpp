@@ -7,8 +7,8 @@
 #define LED_BUILTIN 2
 #define SENSOR_ECHO 12
 #define SENSOR_TRIG 13
-#define LEFT_MOTOR_PWM 14
-#define RIGHT_MOTOR_PWM 18
+#define RIGHT_MOTOR_PWM 14
+#define LEFT_MOTOR_PWM 18
 
 const char* ssid = "Robo_Desenhista";
 std::vector<int> CommandList;
