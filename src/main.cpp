@@ -244,26 +244,39 @@ void loop() {
       switch (cmd) {
         case 0:
           delay(200);
-          analogWrite(LEFT_MOTOR_PWM, 255);
-          analogWrite(RIGHT_MOTOR_PWM, 255);
+          for(int i=0;i<255;i+=5){
+            analogWrite(LEFT_MOTOR_PWM, i);
+            analogWrite(RIGHT_MOTOR_PWM, i);
+            delay(10);
+          }
           Serial.println("Movendo: Frente");
           break;
         case 1:
           delay(200);
+          for(int i=0;i<255;i+=5){
+            analogWrite(RIGHT_MOTOR_PWM, i);
+            delay(10);
+          }
           analogWrite(RIGHT_MOTOR_PWM, 255);
           Serial.println("Movendo: Esquerda");
           break;
         case 2:
           delay(200);
-          analogWrite(LEFT_MOTOR_PWM, 255);
+          for(int i=0;i<255;i+=5){
+            analogWrite(LEFT_MOTOR_PWM, i);
+            delay(10);
+          }
           Serial.println("Movendo: Direita");
           break;
       }
     }
 
     if (movementInProgress && millis() - movementStartTime >= 2000) {
-      analogWrite(LEFT_MOTOR_PWM, 0);
-      analogWrite(RIGHT_MOTOR_PWM, 0);
+      for(int i=255;i>0;i-=5){
+            analogWrite(LEFT_MOTOR_PWM, i);
+            analogWrite(RIGHT_MOTOR_PWM, i);
+            delay(10);
+      }
       movementInProgress = false;
       currentCommandIndex++;
     }
