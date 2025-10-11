@@ -17,10 +17,65 @@ std::vector<int> CommandList;
 WebServer server(80);
 Ultrasonic ultrasonic(SENSOR_TRIG, SENSOR_ECHO);
 
+// Sensor / controle constants
+const int OBSTACLE_THRESHOLD = 30; // distância que considera obstáculo (cm)
+const int HYSTERESIS = 5; // histerese para evitar oscilações
+const int SENSOR_SAMPLES = 5; // número de amostras para filtro simples
+
+// Leitura filtrada do sensor (média simples, descarta outliers se necessário)
+int readFilteredDistance() {
+  long sum = 0;
+  int minV = 10000, maxV = 0;
+  for (int i = 0; i < SENSOR_SAMPLES; i++) {
+    int d = ultrasonic.read();
+    sum += d;
+    if (d < minV) minV = d;
+    if (d > maxV) maxV = d;
+    delay(5);
+  }
+  // remover menor e maior para reduzir ruído quando SENSOR_SAMPLES >= 3
+  if (SENSOR_SAMPLES >= 3) {
+    sum -= minV;
+    sum -= maxV;
+    return (int)(sum / (SENSOR_SAMPLES - 2));
+  }
+  return (int)(sum / SENSOR_SAMPLES);
+}
+
+// Funções utilitárias para ligar/desligar motores com fade
+void fadeStopBoth() {
+  for (int i = 255; i >= 0; i -= 5) {
+    analogWrite(LEFT_MOTOR_PWM, i);
+    analogWrite(RIGHT_MOTOR_PWM, i);
+    delay(10);
+  }
+  analogWrite(LEFT_MOTOR_PWM, 0);
+  analogWrite(RIGHT_MOTOR_PWM, 0);
+}
+
+void fadeStopLeft() {
+  for (int i = 255; i >= 0; i -= 5) {
+    analogWrite(LEFT_MOTOR_PWM, i);
+    delay(10);
+  }
+  analogWrite(LEFT_MOTOR_PWM, 0);
+}
+
+void fadeStopRight() {
+  for (int i = 255; i >= 0; i -= 5) {
+    analogWrite(RIGHT_MOTOR_PWM, i);
+    delay(10);
+  }
+  analogWrite(RIGHT_MOTOR_PWM, 0);
+}
+
+
 bool inMovement = false;
 int currentCommandIndex = 0;
 unsigned long movementStartTime = 0;
 bool movementInProgress = false;
+bool rightMotorOn = false;
+bool leftMotorOn = false;
 bool waitingSensor = false;
 
 String getPage() {
@@ -224,15 +279,27 @@ void loop() {
       return;
     }
 
-    if (ultrasonic.read() <= 30 && !waitingSensor) {
-      analogWrite(LEFT_MOTOR_PWM, 0);
-      analogWrite(RIGHT_MOTOR_PWM, 0);
+    int dist = readFilteredDistance();
+    // usar histerese: se estava esperando, só libera quando acima de threshold + HYSTERESIS
+    if (dist <= OBSTACLE_THRESHOLD && !waitingSensor) {
+      // parar motores com fade, usando flags atuais
+      if (leftMotorOn && rightMotorOn) {
+        fadeStopBoth();
+        rightMotorOn = false;
+        leftMotorOn = false;
+      } else if (leftMotorOn) {
+        fadeStopLeft();
+        leftMotorOn = false;
+      } else if (rightMotorOn) {
+        fadeStopRight();
+        rightMotorOn = false;
+      }
       Serial.println("Esperando liberação do sensor");
       waitingSensor = true;
       return;
     }
 
-    if (ultrasonic.read() > 30 && waitingSensor) {
+    if (dist > (OBSTACLE_THRESHOLD + HYSTERESIS) && waitingSensor) {
       Serial.println("Sensor liberado, continuando");
       waitingSensor = false;
       movementInProgress = false;
@@ -251,6 +318,8 @@ void loop() {
             analogWrite(RIGHT_MOTOR_PWM, i);
             delay(10);
           }
+          leftMotorOn = true;
+          rightMotorOn = true;
           Serial.println("Movendo: Frente");
           break;
         case 1:
@@ -259,7 +328,7 @@ void loop() {
             analogWrite(RIGHT_MOTOR_PWM, i);
             delay(10);
           }
-          analogWrite(RIGHT_MOTOR_PWM, 255);
+          rightMotorOn = true;
           Serial.println("Movendo: Esquerda");
           break;
         case 2:
@@ -268,16 +337,35 @@ void loop() {
             analogWrite(LEFT_MOTOR_PWM, i);
             delay(10);
           }
+          leftMotorOn = true;
           Serial.println("Movendo: Direita");
           break;
       }
     }
 
     if (movementInProgress && millis() - movementStartTime >= 2000) {
-      for(int i=255;i>0;i-=5){
+      if(leftMotorOn && rightMotorOn){
+        for(int i=255;i>0;i-=5){
             analogWrite(LEFT_MOTOR_PWM, i);
             analogWrite(RIGHT_MOTOR_PWM, i);
             delay(10);
+        }
+        rightMotorOn = false;
+        leftMotorOn = false;
+      }
+      else if(leftMotorOn){
+        for(int i=255;i>0;i-=5){
+            analogWrite(LEFT_MOTOR_PWM, i);
+            delay(10);
+        }
+        leftMotorOn = false;
+      }
+      else if(rightMotorOn){
+        for(int i=255;i>0;i-=5){
+            analogWrite(RIGHT_MOTOR_PWM, i);
+            delay(10);
+        }
+        rightMotorOn = false;
       }
       movementInProgress = false;
       currentCommandIndex++;
