@@ -51,7 +51,7 @@ O robô desenhista recebe uma sequência de comandos do usuário, que determinam
   - O vetor de comandos é limpo automaticamente.  
   - O robô volta ao estado inicial, pronto para receber uma nova sequência de comandos do usuário.
 
-### 6. Verificação contínua de conexão
-- Durante toda a operação, o robô monitora sua conexão com a rede:  
-  - Se a conexão cair, o `LED_BUILTIN` é desligado e o robô tenta conectar-se à rede automaticamente.  
+### 6. Verificação contínua de rede
+- Durante toda a operação, o robô monitora sua rede:  
+  - Se a conexão cair, o `LED_BUILTIN` é desligado e o robô tenta iniciar à rede automaticamente.  
   - Quando a conexão é restabelecida, o LED volta a acender e a interface web continua disponível para o usuário.
