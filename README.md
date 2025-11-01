@@ -6,12 +6,12 @@ O robô desenhista recebe uma sequência de comandos do usuário, que determinam
 ## Funcionamento Detalhado
 
 ### 1. Inicialização do robô
-- Ao ser ligado, o robô inicia todos os sistemas internos e chama a função responsável por conectá-lo à rede WiFi.  
-- Durante a tentativa de conexão:
-  - O `LED_BUILTIN` pisca alternadamente para indicar que o robô está tentando se conectar.  
+- Ao ser ligado, o robô inicia todos os sistemas internos e chama a função responsável por iniciar sua rede.  
+- Durante a tentativa de criação:
+  - O `LED_BUILTIN` pisca alternadamente para indicar que o robô está tentando iniciar sua rede.  
 - Quando a conexão é estabelecida:
   - O `LED_BUILTIN` permanece aceso, indicando que o robô está online.  
-  - O IP do robô é exibido no Serial Monitor para que o usuário saiba como acessar a interface web.  
+  - O dns do robô é exibido no Serial Monitor para que o usuário saiba como acessar a interface web.  
 
 ### 2. Hospedagem da interface web
 - O robô hospeda uma pequena página web na rede, que permite ao usuário interagir com ele.  
